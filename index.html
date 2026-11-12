@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Botonera Educar</title>
+<meta name="theme-color" content="#10213f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  /* Layout: logo banner, sticky section-chip nav, one color-accented grid per event moment, two-channel control dock (effects + looping background). Single dark stage look in the school's navy/red/white with gold highlights. */
+  :root {
+    --navy: #1b3260;
+    --navy-deep: #10213f;
+    --navy-soft: #24417a;
+    --navy-edge: #0b1830;
+    --red: #9b1b2a;
+    --red-bright: #c8243a;
+    --red-edge: #5e0f19;
+    --white: #ffffff;
+    --card-edge: #c9d2e3;
+    --gold: #ffd34d;
+    --gold-edge: #b8901c;
+    --cream: #ffe9a8;
+    --cream-edge: #d9b956;
+    --ink: #10213f;
+    --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+    --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--navy-deep); scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(circle at 15% 5%, rgba(255,255,255,.07), transparent 40%),
+      radial-gradient(circle at 90% 95%, rgba(155,27,42,.35), transparent 45%),
+      var(--navy-deep);
+    background-attachment: fixed;
+    color: var(--white);
+    font-family: var(--font-body);
+    padding-block: 16px calc(170px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none;
+    min-height: 100%;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; z-index: 30;
+    height: env(safe-area-inset-top, 0px); background: var(--navy-deep);
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+
+  header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  header img {
+    width: 76px; height: 76px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 0 0 4px var(--white), 0 10px 30px rgba(0,0,0,.4);
+  }
+  header h1 {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(24px, 4vw, 40px); line-height: 1; margin: 0;
+    text-wrap: balance;
+  }
+  .evento {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px; padding: 3px 12px; border-radius: 999px;
+    background: var(--gold); color: var(--ink);
+    font-family: var(--font-display); font-weight: 800; font-size: 14px;
+  }
+
+  /* Navegación por secciones */
+  .chips {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 10px 2px; margin: 0 0 6px;
+    background: rgba(16,33,63,.93);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; border: 2px solid var(--acc, var(--gold)); cursor: pointer;
+    background: var(--navy); color: var(--white);
+    font-family: var(--font-display); font-weight: 800; font-size: 15px;
+    padding: 7px 14px; border-radius: 999px; touch-action: manipulation;
+  }
+  .chip:active { background: var(--acc, var(--gold)); color: var(--ink); }
+  .chip:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+
+  section { scroll-margin-top: calc(70px + env(safe-area-inset-top, 0px)); }
+  h2 {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 20px; letter-spacing: .06em; text-transform: uppercase;
+    margin: 22px 0 12px; display: flex; align-items: center; gap: 10px;
+  }
+  h2 .h2emoji {
+    display: grid; place-items: center; width: 34px; height: 34px;
+    border-radius: 10px; background: var(--acc); font-size: 19px;
+  }
+  h2::after { content: ""; flex: 1; height: 3px; background: var(--acc); border-radius: 3px; opacity: .85; }
+  .nota { margin: -4px 0 12px; font-size: 15px; opacity: .8; }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); }
+
+  .btn {
+    position: relative; overflow: hidden;
+    border: 0; cursor: pointer; text-align: left;
+    background: var(--white); color: var(--ink);
+    border-radius: 18px; padding: 18px 14px;
+    min-height: 116px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    box-shadow: 0 6px 0 var(--card-edge), 0 12px 24px rgba(0,0,0,.3);
+    transition: transform .08s ease, box-shadow .08s ease, background .2s;
+    font-family: inherit;
+    touch-action: manipulation;
+  }
+  .btn::before { content: ""; position: absolute; inset: 0 0 auto; height: 5px; background: var(--acc); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--card-edge), 0 4px 10px rgba(0,0,0,.3); }
+  .btn:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+  @media (hover: hover) { .btn:hover { transform: translateY(-2px); } }
+
+  .btn .emoji { font-size: 36px; line-height: 1; }
+  .btn .name { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.12; margin-top: 10px; }
+  .btn .key {
+    position: absolute; top: 14px; right: 12px;
+    min-width: 28px; height: 28px; padding: 0 8px;
+    border-radius: 8px; background: var(--navy); color: var(--white);
+    font-weight: 800; font-size: 14px; display: grid; place-items: center;
+  }
+  .btn .bar { position: absolute; left: 0; bottom: 0; height: 7px; width: 0%; background: var(--red-bright); }
+
+  /* Ecualizador animado en el botón que suena */
+  .eq { position: absolute; top: 14px; right: 12px; display: none; gap: 3px; height: 24px; align-items: flex-end; }
+  .eq i { width: 5px; border-radius: 3px; background: currentColor; height: 60%; }
+  .playing .eq { display: flex; }
+  .playing .key { display: none; }
+  .eq i:nth-child(1) { animation: eqb .7s ease-in-out infinite; }
+  .eq i:nth-child(2) { animation: eqb .7s ease-in-out .18s infinite; }
+  .eq i:nth-child(3) { animation: eqb .7s ease-in-out .33s infinite; }
+  @keyframes eqb { 0%, 100% { height: 30%; } 50% { height: 100%; } }
+
+  .fun .btn { background: var(--cream); box-shadow: 0 6px 0 var(--cream-edge), 0 12px 24px rgba(0,0,0,.3); }
+  .fun .btn:active { box-shadow: 0 2px 0 var(--cream-edge), 0 4px 10px rgba(0,0,0,.3); }
+
+  .music .btn { background: var(--navy-soft); color: var(--white); box-shadow: 0 6px 0 var(--navy-edge), 0 12px 24px rgba(0,0,0,.3); }
+  .music .btn .key { background: var(--white); color: var(--navy); }
+  .music .btn .bar { background: var(--gold); }
+
+  .fondo .btn {
+    background: var(--navy-deep); color: var(--white);
+    border: 3px dashed var(--gold);
+    box-shadow: 0 6px 0 var(--navy-edge), 0 12px 24px rgba(0,0,0,.3);
+  }
+  .fondo .btn::before { display: none; }
+  .fondo .btn .key { background: var(--gold); color: var(--ink); }
+  .fondo .btn .bar { background: var(--gold); }
+  .fondo .btn.playing {
+    background: var(--gold); color: var(--ink); border-style: solid; border-color: var(--white);
+    box-shadow: 0 6px 0 var(--gold-edge), 0 12px 30px rgba(255,211,77,.45);
+    animation: none;
+  }
+  .fondo .btn.playing .bar { background: var(--ink); }
+
+  .btn.playing {
+    background: var(--red); color: var(--white);
+    box-shadow: 0 6px 0 var(--red-edge), 0 0 0 4px var(--gold), 0 12px 30px rgba(200,36,58,.6);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  .btn.playing::before { background: var(--gold); }
+  .music .btn.playing { background: var(--red); box-shadow: 0 6px 0 var(--red-edge), 0 0 0 4px var(--gold), 0 12px 30px rgba(200,36,58,.6); }
+  .btn.playing .bar { background: var(--gold); }
+  @keyframes pulse { 50% { transform: scale(1.03); } }
+  @media (prefers-reduced-motion: reduce) {
+    .btn.playing, .eq i { animation: none !important; }
+    html { scroll-behavior: auto; }
+  }
+
+  footer { margin-top: 30px; font-size: 13px; opacity: .6; text-align: center; }
+
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+    background: rgba(16,33,63,.95); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    border-top: 3px solid var(--red);
+    padding-top: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .dock-row { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .dock-row + .dock-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.15); }
+  .stop {
+    border: 0; cursor: pointer; font-family: var(--font-display); font-weight: 800;
+    font-size: 19px; padding: 10px 18px; border-radius: 14px; flex-shrink: 0;
+    background: var(--red-bright); color: var(--white);
+    box-shadow: 0 4px 0 var(--red-edge); touch-action: manipulation;
+  }
+  .stop:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--red-edge); }
+  .stop:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+  .stop.bg { background: var(--gold); color: var(--ink); box-shadow: 0 4px 0 var(--gold-edge); font-size: 16px; padding: 8px 14px; }
+  .stop.bg:active { box-shadow: 0 1px 0 var(--gold-edge); }
+  .now { flex: 1; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .now b { font-family: var(--font-display); font-size: 18px; }
+  .vol { display: flex; align-items: center; gap: 6px; font-size: 20px; flex-shrink: 0; }
+  .vol input { width: 130px; accent-color: var(--red-bright); }
+  .bgvol input { width: 110px; accent-color: var(--gold); }
+
+  /* Celular y tablet: sin teclas ni volumen de efectos (se usan los botones del teléfono) */
+  @media (hover: none) {
+    .btn .key, .vol.main { display: none; }
+  }
+  @media (max-width: 520px) {
+    header img { width: 56px; height: 56px; }
+    header h1 { font-size: 24px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .btn { min-height: 102px; padding: 14px 12px; border-radius: 16px; }
+    .btn .emoji { font-size: 31px; }
+    .btn .name { font-size: 16px; }
+    .stop { font-size: 17px; padding: 10px 14px; }
+    .stop.bg { font-size: 15px; padding: 8px 12px; }
+    .bgvol input { width: 80px; }
+    .now, .now b { font-size: 15px; }
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.jpg" alt="Logo U.E. Bilingüe Educar">
+    <div>
+      <h1>Botonera de sonidos</h1>
+      <span class="evento">🎡 Ruleta Matemágica</span>
+    </div>
+  </header>
+
+  <nav class="chips" id="chips" aria-label="Secciones"></nav>
+
+  <div id="secciones"></div>
+
+  <footer>U.E. Bilingüe Educar · Efectos y música de fondo: Mixkit (licencia gratuita)</footer>
+</div>
+
+<div class="dock">
+  <div class="dock-row">
+    <button class="stop" id="stop" type="button" title="Tecla Espacio o Esc">⏹ Detener</button>
+    <div class="now" id="now">Toca un botón para reproducir</div>
+    <label class="vol main" title="Volumen de efectos">🔊 <input type="range" id="vol" min="0" max="1" step="0.05" value="1"></label>
+  </div>
+  <div class="dock-row" id="bgRow" hidden>
+    <button class="stop bg" id="stopBg" type="button">⏹ Fondo</button>
+    <div class="now" id="bgNow"></div>
+    <label class="vol bgvol" title="Volumen de la música de fondo">🎵 <input type="range" id="bgVol" min="0" max="1" step="0.05" value="0.4"></label>
+  </div>
+</div>
+
+<script>
+  // canal "fx": un sonido a la vez (tocar otro corta el anterior)
+  // canal "fondo": música que se repite y sigue sonando aunque toques efectos
+  const SECCIONES = [
+    { id: "entrada", titulo: "Entrada", emoji: "🎬", acc: "#ffd34d", clase: "", prefetch: true, sonidos: [
+      { nombre: "Intro del concurso",  emoji: "🎬", tecla: "Q", archivo: "sonidos/intro.mp3" },
+      { nombre: "Golpe de tráiler",    emoji: "💥", tecla: "E", archivo: "sonidos/braam.mp3" },
+      { nombre: "Brillo mágico",       emoji: "✨", tecla: "R", archivo: "sonidos/magia.mp3" },
+      { nombre: "Whoosh + golpe",      emoji: "🌪️", tecla: "T", archivo: "sonidos/whoosh.mp3" },
+      { nombre: "Tambores de estadio", emoji: "🏟️", tecla: "Y", archivo: "sonidos/estadio.mp3" },
+    ]},
+    { id: "concurso", titulo: "Concurso", emoji: "🎯", acc: "#5aa9ff", clase: "", prefetch: true, sonidos: [
+      { nombre: "Ruleta girando",      emoji: "🎡", tecla: "1", archivo: "sonidos/ruleta.mp3" },
+      { nombre: "Revelación",          emoji: "🪄", tecla: "2", archivo: "sonidos/revelacion.mp3" },
+      { nombre: "Campana de ronda",    emoji: "🔔", tecla: "3", archivo: "sonidos/campana.mp3" },
+      { nombre: "Cuenta regresiva",    emoji: "🚦", tecla: "4", archivo: "sonidos/cuenta.mp3" },
+      { nombre: "Tic-tac (a pensar)",  emoji: "⏱️", tecla: "5", archivo: "sonidos/tictac.mp3" },
+      { nombre: "Latido de suspenso",  emoji: "🫀", tecla: "6", archivo: "sonidos/latido.mp3" },
+      { nombre: "Tiempo terminado",    emoji: "⏰", tecla: "7", archivo: "sonidos/tiempo.mp3" },
+      { nombre: "Correcta",            emoji: "✅", tecla: "8", archivo: "sonidos/correcta.mp3" },
+      { nombre: "Incorrecta",          emoji: "❌", tecla: "9", archivo: "sonidos/incorrecta.mp3" },
+      { nombre: "Campanita de logro",  emoji: "🏅", tecla: "0", archivo: "sonidos/logro.mp3" },
+    ]},
+    { id: "publico", titulo: "Público y premiación", emoji: "🏆", acc: "#ff9d5c", clase: "", prefetch: true, sonidos: [
+      { nombre: "Aplausos",            emoji: "👏", tecla: "A", archivo: "sonidos/aplausos.mp3" },
+      { nombre: "Ovación con gritos",  emoji: "📣", tecla: "S", archivo: "sonidos/ovacion.mp3" },
+      { nombre: "Redoble de tambores", emoji: "🥁", tecla: "D", archivo: "sonidos/redoble2.mp3" },
+      { nombre: "Dun dun duuun",       emoji: "😨", tecla: "F", archivo: "sonidos/suspenso.mp3" },
+      { nombre: "Fanfarria de victoria", emoji: "🎺", tecla: "G", archivo: "sonidos/fanfarria.mp3" },
+      { nombre: "Foto (click)",        emoji: "📸", tecla: "H", archivo: "sonidos/camara.mp3" },
+    ]},
+    { id: "graciosos", titulo: "Graciosos", emoji: "😄", acc: "#e0a93e", clase: "fun", prefetch: true,
+      nota: "Para el público o la presentadora, no cuando un concursante se equivoca.", sonidos: [
+      { nombre: "¡Pum! (golpeen)",     emoji: "🥊", tecla: "Z", archivo: "sonidos/pum.mp3" },
+      { nombre: "Risas del público",   emoji: "😂", tecla: "X", archivo: "sonidos/risas.mp3" },
+      { nombre: "Boing",               emoji: "🤸", tecla: "C", archivo: "sonidos/boing.mp3" },
+      { nombre: "Bocina de payaso",    emoji: "🤡", tecla: "V", archivo: "sonidos/bocina.mp3" },
+      { nombre: "Trombón triste",      emoji: "🎺", tecla: "B", archivo: "sonidos/trombon.mp3" },
+      { nombre: "Piano de fallo",      emoji: "🎹", tecla: "N", archivo: "sonidos/pianofallo.mp3" },
+      { nombre: "Silbato",             emoji: "📯", tecla: "M", archivo: "sonidos/silbato.mp3" },
+      { nombre: "Ba Dum Tss",          emoji: "🥁", tecla: ",", archivo: "sonidos/badumtss2.mp3" },
+      { nombre: "Grillos",             emoji: "🦗", tecla: ".", archivo: "sonidos/grillos2.mp3" },
+    ]},
+    { id: "fondo", titulo: "Fondo", emoji: "🎼", acc: "#ffd34d", clase: "fondo", canal: "fondo",
+      nota: "Se repite sola y sigue sonando aunque toques otros botones. Se para con ⏹ Fondo.", sonidos: [
+      { nombre: "Discurso (inspirador)",   emoji: "🎻", tecla: "U", archivo: "sonidos/fondo-discurso.mp3" },
+      { nombre: "Explicación (ligera)",    emoji: "🧠", tecla: "I", archivo: "sonidos/fondo-explicacion.mp3" },
+      { nombre: "Gran final (tensión)",    emoji: "🔥", tecla: "O", archivo: "sonidos/fondo-final.mp3" },
+      { nombre: "Premiación y certificados", emoji: "🏆", tecla: "P", archivo: "sonidos/fondo-premiacion.mp3" },
+      { nombre: "Despedida",               emoji: "👋", tecla: "-", archivo: "sonidos/fondo-salida.mp3" },
+    ]},
+  ];
+
+  const MSG_FX = "Toca un botón para reproducir";
+  const nowEl = document.getElementById("now");
+  const bgNow = document.getElementById("bgNow");
+  const bgRow = document.getElementById("bgRow");
+  const vol = document.getElementById("vol");
+  const bgVol = document.getElementById("bgVol");
+  const porTecla = {};
+  let wakeLock = null;
+
+  // ---------- Canal de efectos ----------
+  const fx = new Audio();
+  fx.preload = "auto";
+  fx.setAttribute("playsinline", "");
+  let fxActual = null;
+
+  // ---------- Canal de fondo (volumen propio vía Web Audio, que también funciona en iPhone) ----------
+  const bg = new Audio();
+  bg.loop = true;
+  bg.preload = "auto";
+  bg.setAttribute("playsinline", "");
+  let bgActual = null;
+  let ctx = null, bgGain = null;
+
+  function prepararAudio() {
+    if (!ctx) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        // Abierto con doble clic (file://) el navegador silenciaría el fondo por seguridad: ahí se usa el volumen normal
+        if (AC && location.protocol !== "file:") {
+          ctx = new AC();
+          const src = ctx.createMediaElementSource(bg);
+          bgGain = ctx.createGain();
+          bgGain.gain.value = Number(bgVol.value);
+          src.connect(bgGain);
+          bgGain.connect(ctx.destination);
+        }
+      } catch (e) { ctx = null; bgGain = null; }
+      if (!bgGain) bg.volume = Number(bgVol.value);
+    }
+    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+  }
+
+  async function mantenerPantalla() {
+    try {
+      if (!wakeLock && navigator.wakeLock) {
+        wakeLock = await navigator.wakeLock.request("screen");
+        wakeLock.addEventListener("release", () => { wakeLock = null; });
+      }
+    } catch (e) {}
+  }
+
+  function crearSecciones() {
+    const raiz = document.getElementById("secciones");
+    const chips = document.getElementById("chips");
+    for (const sec of SECCIONES) {
+      const chip = document.createElement("button");
+      chip.className = "chip";
+      chip.type = "button";
+      chip.style.setProperty("--acc", sec.acc);
+      chip.textContent = `${sec.emoji} ${sec.titulo}`;
+      chip.addEventListener("click", () => document.getElementById("sec-" + sec.id).scrollIntoView({ block: "start" }));
+      chips.appendChild(chip);
+
+      const wrap = document.createElement("section");
+      wrap.id = "sec-" + sec.id;
+      wrap.style.setProperty("--acc", sec.acc);
+      const h = document.createElement("h2");
+      h.innerHTML = `<span class="h2emoji">${sec.emoji}</span>`;
+      h.append(sec.titulo);
+      wrap.appendChild(h);
+      if (sec.nota) {
+        const p = document.createElement("p");
+        p.className = "nota";
+        p.textContent = sec.nota;
+        wrap.appendChild(p);
+      }
+      const grid = document.createElement("div");
+      grid.className = "grid " + sec.clase;
+      wrap.appendChild(grid);
+      raiz.appendChild(wrap);
+      for (const s of sec.sonidos) {
+        const b = document.createElement("button");
+        b.className = "btn";
+        b.type = "button";
+        const key = s.tecla ? `<span class="key">${s.tecla}</span>` : "";
+        b.innerHTML = `${key}<span class="eq"><i></i><i></i><i></i></span><span class="emoji">${s.emoji}</span><span class="name">${s.nombre}</span><span class="bar"></span>`;
+        const accion = sec.canal === "fondo" ? () => tocarFondo(s, b) : () => tocarFx(s, b);
+        b.addEventListener("click", accion);
+        grid.appendChild(b);
+        if (s.tecla) porTecla[s.tecla.toLowerCase()] = accion;
+      }
+    }
+  }
+
+  function limpiarBoton(b) {
+    b.classList.remove("playing");
+    b.querySelector(".bar").style.width = "0%";
+  }
+
+  // ---------- Efectos ----------
+  function detenerFx() {
+    fx.pause();
+    if (fxActual) limpiarBoton(fxActual.boton);
+    fxActual = null;
+    nowEl.textContent = MSG_FX;
+  }
+
+  function tocarFx(sonido, boton) {
+    prepararAudio();
+    mantenerPantalla();
+    if (fxActual && fxActual.boton === boton) { detenerFx(); return; }
+    detenerFx();
+    fxActual = { sonido, boton };
+    boton.classList.add("playing");
+    nowEl.innerHTML = `Sonando: <b>${sonido.emoji} ${sonido.nombre}</b>`;
+    fx.src = sonido.archivo;
+    fx.play().catch(() => {
+      if (fxActual && fxActual.boton === boton) {
+        nowEl.textContent = "No se pudo reproducir: " + sonido.nombre;
+        limpiarBoton(boton);
+        fxActual = null;
+      }
+    });
+  }
+
+  fx.addEventListener("timeupdate", () => {
+    if (!fxActual || !fx.duration) return;
+    fxActual.boton.querySelector(".bar").style.width = (fx.currentTime / fx.duration * 100) + "%";
+  });
+  fx.addEventListener("ended", detenerFx);
+  fx.addEventListener("error", () => {
+    if (!fxActual) return;
+    nowEl.textContent = "No se pudo cargar: " + fxActual.sonido.nombre;
+    limpiarBoton(fxActual.boton);
+    fxActual = null;
+  });
+
+  // ---------- Fondo ----------
+  function detenerFondo() {
+    bg.pause();
+    if (bgActual) limpiarBoton(bgActual.boton);
+    bgActual = null;
+    bgRow.hidden = true;
+  }
+
+  function tocarFondo(sonido, boton) {
+    prepararAudio();
+    mantenerPantalla();
+    if (bgActual && bgActual.boton === boton) { detenerFondo(); return; }
+    detenerFondo();
+    bgActual = { sonido, boton };
+    boton.classList.add("playing");
+    bgRow.hidden = false;
+    bgNow.innerHTML = `Fondo: <b>${sonido.emoji} ${sonido.nombre}</b>`;
+    bg.src = sonido.archivo;
+    bg.play().catch(() => {
+      if (bgActual && bgActual.boton === boton) {
+        bgNow.textContent = "No se pudo reproducir: " + sonido.nombre;
+        limpiarBoton(boton);
+        bgActual = null;
+      }
+    });
+  }
+
+  bg.addEventListener("timeupdate", () => {
+    if (!bgActual || !bg.duration) return;
+    bgActual.boton.querySelector(".bar").style.width = (bg.currentTime / bg.duration * 100) + "%";
+  });
+  bg.addEventListener("error", () => {
+    if (!bgActual) return;
+    bgNow.textContent = "No se pudo cargar: " + bgActual.sonido.nombre;
+    limpiarBoton(bgActual.boton);
+    bgActual = null;
+  });
+
+  // ---------- Controles ----------
+  vol.addEventListener("input", () => { fx.volume = Number(vol.value); });
+  bgVol.addEventListener("input", () => {
+    if (bgGain) bgGain.gain.value = Number(bgVol.value);
+    else bg.volume = Number(bgVol.value);
+  });
+  document.getElementById("stop").addEventListener("click", detenerFx);
+  document.getElementById("stopBg").addEventListener("click", detenerFondo);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === " " || e.key === "Escape") { e.preventDefault(); detenerFx(); return; }
+    const fn = porTecla[e.key.toLowerCase()];
+    if (fn) { e.preventDefault(); fn(); }
+  });
+
+  crearSecciones();
+
+  // Precarga de los efectos cortos, para que en el evento suenen al instante
+  window.addEventListener("load", () => {
+    const lista = [];
+    for (const sec of SECCIONES) if (sec.prefetch) for (const s of sec.sonidos) lista.push(s.archivo);
+    let i = 0;
+    const siguiente = () => {
+      if (i >= lista.length) return;
+      fetch(lista[i++]).catch(() => {}).finally(() => setTimeout(siguiente, 150));
+    };
+    setTimeout(siguiente, 1200);
+  });
+</script>
+</body>
+</html>
