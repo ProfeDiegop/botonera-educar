@@ -250,7 +250,7 @@
   <div class="dock-row" id="bgRow" hidden>
     <button class="stop bg" id="stopBg" type="button">⏹ Fondo</button>
     <div class="now" id="bgNow"></div>
-    <label class="vol bgvol" title="Volumen de la música de fondo">🎵 <input type="range" id="bgVol" min="0" max="1" step="0.05" value="0.4"></label>
+    <label class="vol bgvol" title="Volumen de la música de fondo">🎵 <input type="range" id="bgVol" min="0" max="1" step="0.05" value="0.7"></label>
   </div>
 </div>
 
@@ -330,32 +330,14 @@
   fx.setAttribute("playsinline", "");
   let fxActual = null;
 
-  // ---------- Canal de fondo (volumen propio vía Web Audio, que también funciona en iPhone) ----------
+  // ---------- Canal de fondo (elemento de audio aparte con volumen directo: lo más compatible) ----------
+  // Nota: en iPhone el volumen por software es fijo; ahí se regula con los botones del teléfono.
   const bg = new Audio();
   bg.loop = true;
   bg.preload = "auto";
   bg.setAttribute("playsinline", "");
+  bg.volume = 0.7;
   let bgActual = null;
-  let ctx = null, bgGain = null;
-
-  function prepararAudio() {
-    if (!ctx) {
-      try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        // Abierto con doble clic (file://) el navegador silenciaría el fondo por seguridad: ahí se usa el volumen normal
-        if (AC && location.protocol !== "file:") {
-          ctx = new AC();
-          const src = ctx.createMediaElementSource(bg);
-          bgGain = ctx.createGain();
-          bgGain.gain.value = Number(bgVol.value);
-          src.connect(bgGain);
-          bgGain.connect(ctx.destination);
-        }
-      } catch (e) { ctx = null; bgGain = null; }
-      if (!bgGain) bg.volume = Number(bgVol.value);
-    }
-    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-  }
 
   async function mantenerPantalla() {
     try {
@@ -423,7 +405,6 @@
   }
 
   function tocarFx(sonido, boton) {
-    prepararAudio();
     mantenerPantalla();
     if (fxActual && fxActual.boton === boton) { detenerFx(); return; }
     detenerFx();
@@ -461,7 +442,6 @@
   }
 
   function tocarFondo(sonido, boton) {
-    prepararAudio();
     mantenerPantalla();
     if (bgActual && bgActual.boton === boton) { detenerFondo(); return; }
     detenerFondo();
@@ -492,10 +472,7 @@
 
   // ---------- Controles ----------
   vol.addEventListener("input", () => { fx.volume = Number(vol.value); });
-  bgVol.addEventListener("input", () => {
-    if (bgGain) bgGain.gain.value = Number(bgVol.value);
-    else bg.volume = Number(bgVol.value);
-  });
+  bgVol.addEventListener("input", () => { bg.volume = Number(bgVol.value); });
   document.getElementById("stop").addEventListener("click", detenerFx);
   document.getElementById("stopBg").addEventListener("click", detenerFondo);
 
